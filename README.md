@@ -1,6 +1,12 @@
 # fatfree-core
 Fat-Free Framework core library
 
+### *Important Note*:
+
+Since there have been no progress nor updates since v3.8.2, and pull requests have been open for sometime, this fork will be revised to keep this library alive. 
+See the [Changelog](https://github.com/aingelc12ell/f3/blob/master/CHANGELOG.md) for changes being made.
+New release branch and package will be available soon.
+
 ### Usage:
 
 First make sure to add a proper url rewrite configuration to your server, see https://fatfreeframework.com/3.6/routing-engine#DynamicWebSites
@@ -8,7 +14,10 @@ First make sure to add a proper url rewrite configuration to your server, see ht
 **without composer:**
 
 ```php
-$f3 = require('lib/base.php');
+## deprecated: $f3 = require('lib/base.php');
+
+require('lib/base.php');
+$f3 = Base::instance();
 ```
 
 **with composer:**
