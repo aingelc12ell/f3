@@ -23,12 +23,12 @@ $f3 = Base::instance();
 **with composer:**
 
 ```
-composer require bcosca/fatfree-core
+composer require f3/f3
 ```
 
 ```php
 require("vendor/autoload.php");
-$f3 = \Base::instance();
+$f3 = \F3\Base::instance();
 ```
 
 ---
