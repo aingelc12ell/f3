@@ -20,10 +20,12 @@
 
 */
 
-namespace Web;
+namespace F3\Web;
+use F3\Magic
+    ,F3\Web;
 
 //! Lightweight OAuth2 client
-class OAuth2 extends \Magic {
+class OAuth2 extends Magic {
 
 	protected
 		//! Scopes and claims
@@ -50,7 +52,7 @@ class OAuth2 extends \Magic {
 	*	@param $token string
 	**/
 	function request($uri,$method,$token=NULL) {
-		$web=\Web::instance();
+		$web=Web::instance();
 		$options=[
 			'method'=>$method,
 			'content'=>http_build_query($this->args,'','&',$this->enc_type),
@@ -107,7 +109,7 @@ class OAuth2 extends \Magic {
 
 	/**
 	*	URL-safe base64 encoding
-	*	@return array
+	*	@return string
 	*	@param $data string
 	**/
 	function b64url($data) {

@@ -1,6 +1,6 @@
 <?php
 
-
+namespace F3;
 //! ISO language/country codes
 class ISO extends Prefab {
 
@@ -349,7 +349,7 @@ class ISO extends Prefab {
      *	@return array
      **/
     function languages() {
-        return \Base::instance()->constants($this,'LC_');
+        return Base::instance()->constants($this,'LC_');
     }
 
     /**
@@ -357,7 +357,7 @@ class ISO extends Prefab {
      *	@return array
      **/
     function countries() {
-        return \Base::instance()->constants($this,'CC_');
+        return Base::instance()->constants($this,'CC_');
     }
 
 }

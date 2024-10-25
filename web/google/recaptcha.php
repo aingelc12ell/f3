@@ -20,7 +20,8 @@
 
 */
 
-namespace Web\Google;
+namespace F3\Web\Google;
+use F3\Base,F3\Web;
 
 //! Google ReCAPTCHA v2 plug-in
 class Recaptcha {
@@ -36,12 +37,12 @@ class Recaptcha {
 	 *	@return bool
 	 **/
 	static function verify($secret,$response=NULL) {
-		$fw=\Base::instance();
+		$fw=Base::instance();
 		if (!isset($response))
 			$response=$fw->{'POST.g-recaptcha-response'};
 		if (!$response)
 			return FALSE;
-		$web=\Web::instance();
+		$web=Web::instance();
 		$out=$web->request(self::URL_Recaptcha,[
 			'method'=>'POST',
 			'content'=>http_build_query([

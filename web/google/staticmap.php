@@ -20,7 +20,8 @@
 
 */
 
-namespace Web\Google;
+namespace F3\Web\Google;
+use F3\Base,F3\Web;
 
 //! Google Static Maps API v2 plug-in
 class StaticMap {
@@ -49,8 +50,8 @@ class StaticMap {
 	*	@return string
 	**/
 	function dump() {
-		$fw=\Base::instance();
-		$web=\Web::instance();
+		$fw=Base::instance();
+		$web=Web::instance();
 		$out='';
 		return ($req=$web->request(
 			self::URL_Static.'?'.array_reduce(

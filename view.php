@@ -1,6 +1,6 @@
 <?php
 
-
+namespace F3;
 //! View handler
 class View extends Prefab {
 
@@ -20,7 +20,7 @@ class View extends Prefab {
     protected $fw;
 
     function __construct() {
-        $this->fw=\Base::instance();
+        $this->fw=Base::instance();
     }
 
     /**

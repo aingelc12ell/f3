@@ -19,6 +19,7 @@
 	with Fat-Free Framework.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+namespace F3;
 
 //! Factory class for single-instance objects
 abstract class Prefab {
@@ -29,7 +30,7 @@ abstract class Prefab {
 	**/
 	static function instance() {
 		if (!Registry::exists($class = get_called_class())) {
-			$ref = new ReflectionClass($class);
+			$ref = new \ReflectionClass($class);
 			$args = func_get_args();
 			Registry::set($class, $args ? $ref->newinstanceargs($args) : new $class);
 		}
@@ -94,7 +95,7 @@ final class Registry {
 }
 
 //! Base structure
-final class Base extends Prefab implements ArrayAccess {
+final class Base extends Prefab implements \ArrayAccess {
 
 	//@{ Framework details
 	const
@@ -400,7 +401,7 @@ final class Base extends Prefab implements ArrayAccess {
             } elseif ($obj) {
                 $obj = FALSE;
                 if (!is_object($var)) {
-                    $var = new stdClass();
+                    $var = new \stdClass();
                 }
                 if ($add || property_exists($var, $part)) {
                     $var = &$var->$part;
@@ -655,7 +656,7 @@ final class Base extends Prefab implements ArrayAccess {
 	**/
 	function visible($obj,$key) {
 		if (property_exists($obj,$key)) {
-			$ref = new ReflectionProperty(get_class($obj),$key);
+			$ref = new \ReflectionProperty(get_class($obj),$key);
 			$out = $ref->ispublic();
 			unset($ref);
 			return $out;
@@ -926,7 +927,7 @@ final class Base extends Prefab implements ArrayAccess {
 	*	@param $prefix string
 	**/
 	function constants($class,$prefix = '') {
-		$ref = new ReflectionClass($class);
+		$ref = new \ReflectionClass($class);
 		return $this->extract($ref->getconstants(),$prefix);
 	}
 
@@ -982,7 +983,7 @@ final class Base extends Prefab implements ArrayAccess {
 		}
 		switch (gettype($arg)) {
 			case 'object':
-				$ref= new ReflectionClass($arg);
+				$ref= new \ReflectionClass($arg);
 				if ($ref->iscloneable()) {
 					$arg= clone($arg);
 					$cast=($it= is_a($arg,'IteratorAggregate'))
@@ -1176,13 +1177,13 @@ final class Base extends Prefab implements ArrayAccess {
 							if ($php81) {
 								$lang = $this->split($this->LANGUAGE);
 								// requires intl extension
-								$dateType=(empty($mod) || $mod == 'short') ? IntlDateFormatter::SHORT :
-									($mod == 'full' ? IntlDateFormatter::FULL : IntlDateFormatter::LONG);
-								$pattern = $dateType === IntlDateFormatter::SHORT
-									? (($ptn = IntlDatePatternGenerator::create($lang[0]))
+								$dateType=(empty($mod) || $mod == 'short') ? \IntlDateFormatter::SHORT :
+									($mod == 'full' ? \IntlDateFormatter::FULL : \IntlDateFormatter::LONG);
+								$pattern = $dateType === \IntlDateFormatter::SHORT
+									? (($ptn = \IntlDatePatternGenerator::create($lang[0]))
 										? $ptn->getBestPattern('yyyyMMdd') : null) : null;
-								$formatter = new IntlDateFormatter($lang[0],$dateType,
-									IntlDateFormatter::NONE, null,null, $pattern);
+								$formatter = new \IntlDateFormatter($lang[0],$dateType,
+									\IntlDateFormatter::NONE, null,null, $pattern);
 								return $formatter->format($args[$pos]);
 							} else {
 								if (empty($mod) || $mod == 'short') {
@@ -1198,12 +1199,12 @@ final class Base extends Prefab implements ArrayAccess {
 							if ($php81) {
 								$lang = $this->split($this->LANGUAGE);
 								// requires intl extension
-								$formatter = new IntlDateFormatter($lang[0],
-									IntlDateFormatter::NONE,
+								$formatter = new \IntlDateFormatter($lang[0],
+									\IntlDateFormatter::NONE,
 									(empty($mod) || $mod == 'short')
-										? IntlDateFormatter::SHORT :
-										($mod == 'full' ? IntlDateFormatter::LONG : IntlDateFormatter::MEDIUM),
-									IntlTimeZone::createTimeZone($this->hive['TZ']));
+										? \IntlDateFormatter::SHORT :
+										($mod == 'full' ? \IntlDateFormatter::LONG : \IntlDateFormatter::MEDIUM),
+									\IntlTimeZone::createTimeZone($this->hive['TZ']));
 								return $formatter->format($args[$pos]);
 							} else {
 								if (empty($mod) || $mod == 'short')
@@ -2644,7 +2645,7 @@ final class Base extends Prefab implements ArrayAccess {
         $check = error_reporting((E_ALL | E_STRICT) & ~(E_NOTICE | E_USER_NOTICE));
         set_exception_handler(
             function ($obj) {
-                /** @var Exception $obj */
+                /** @var \Exception $obj */
                 $this->hive['EXCEPTION'] = $obj;
                 $this->error(500,
                     $obj->getmessage() . ' ' .

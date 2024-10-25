@@ -19,7 +19,7 @@
 	with Fat-Free Framework.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+namespace F3;
 //! XML-style template engine
 class Template extends Preview {
 
@@ -341,7 +341,7 @@ class Template extends Preview {
 	*	return object
 	**/
 	function __construct() {
-		$ref=new ReflectionClass(get_called_class());
+		$ref=new \ReflectionClass(get_called_class());
 		$this->tags='';
 		foreach ($ref->getmethods() as $method)
 			if (preg_match('/^_(?=[[:alpha:]])/',$method->name))

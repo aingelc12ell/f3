@@ -19,7 +19,7 @@
 	with Fat-Free Framework.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+namespace F3;
 //! Cache-based session handler
 class Session extends Magic {
 
@@ -174,7 +174,7 @@ class Session extends Magic {
 	**/
 	function __construct($onsuspect=NULL,$key=NULL,$cache=null) {
 		$this->onsuspect=$onsuspect;
-		$this->_cache=$cache?:Cache::instance();
+		$this->_cache = $cache ?: Cache::instance();
 		session_set_save_handler(
 			[$this,'open'],
 			[$this,'close'],
@@ -184,7 +184,7 @@ class Session extends Magic {
 			[$this,'cleanup']
 		);
 		register_shutdown_function('session_commit');
-		$fw=\Base::instance();
+		$fw=Base::instance();
 		$headers=$fw->HEADERS;
 		$this->_csrf=$fw->hash($fw->SEED.
 			extension_loaded('openssl')?

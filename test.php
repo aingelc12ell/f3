@@ -19,7 +19,7 @@
 	with Fat-Free Framework.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+namespace F3;
 //! Unit test kit
 class Test {
 

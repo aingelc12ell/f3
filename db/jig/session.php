@@ -21,6 +21,7 @@
 */
 
 namespace DB\Jig;
+use F3;
 
 //! Jig-managed session handler
 class Session extends Mapper {
@@ -67,7 +68,7 @@ class Session extends Mapper {
 		if ($this->dry())
 			return '';
 		if ($this->get('ip')!=$this->_ip || $this->get('agent')!=$this->_agent) {
-			$fw=\Base::instance();
+			$fw=Base::instance();
 			if (!isset($this->onsuspect) ||
 				$fw->call($this->onsuspect,[$this,$id])===FALSE) {
 				// NB: `session_destroy` can't be called at that stage;
@@ -178,7 +179,7 @@ class Session extends Mapper {
 			[$this,'cleanup']
 		);
 		register_shutdown_function('session_commit');
-		$fw=\Base::instance();
+		$fw=Base::instance();
 		$headers=$fw->HEADERS;
 		$this->_csrf=$fw->hash($fw->SEED.
 			extension_loaded('openssl')?

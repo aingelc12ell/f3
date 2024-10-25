@@ -19,7 +19,7 @@
 	with Fat-Free Framework.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+namespace F3;
 //! Markdown-to-HTML converter
 class Markdown extends Prefab {
 

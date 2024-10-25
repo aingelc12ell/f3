@@ -20,7 +20,8 @@
 
 */
 
-namespace DB;
+namespace F3\DB;
+use F3\Base,F3\Cache;
 
 //! PDO wrapper
 class SQL {
@@ -168,8 +169,8 @@ class SQL {
 		}
 		if ($this->log===FALSE)
 			$log=FALSE;
-		$fw=\Base::instance();
-		$cache=\Cache::instance();
+		$fw=Base::instance();
+		$cache=Cache::instance();
 		$result=FALSE;
 		for ($i=0;$i<$count;++$i) {
 			$cmd=$cmds[$i];
@@ -295,8 +296,7 @@ class SQL {
 	function exists($table) {
 		$mode=$this->pdo->getAttribute(\PDO::ATTR_ERRMODE);
 		$this->pdo->setAttribute(\PDO::ATTR_ERRMODE,\PDO::ERRMODE_SILENT);
-		$out=$this->pdo->
-			query('SELECT 1 FROM '.$this->quotekey($table).' LIMIT 1');
+		$out=$this->pdo->query('SELECT 1 FROM '.$this->quotekey($table).' LIMIT 1');
 		$this->pdo->setAttribute(\PDO::ATTR_ERRMODE,$mode);
 		return is_object($out);
 	}
@@ -309,8 +309,8 @@ class SQL {
 	*	@param $ttl int|array
 	**/
 	function schema($table,$fields=NULL,$ttl=0) {
-		$fw=\Base::instance();
-		$cache=\Cache::instance();
+		$fw=Base::instance();
+		$cache=Cache::instance();
 		if ($fw->CACHE && $ttl &&
 			($cached=$cache->exists(
 				$hash=$fw->hash($this->dsn.$table.(is_array($fields) ? implode(',',$fields) : $fields)).'.schema',$result)) &&
@@ -390,7 +390,7 @@ class SQL {
 				'FIELD','TYPE','DEFVAL','NULLABLE','Y','PKEY','P']
 		];
 		if (is_string($fields))
-			$fields=\Base::instance()->split($fields);
+			$fields=Base::instance()->split($fields);
 		$conv=[
 			'int\b|integer'=>\PDO::PARAM_INT,
 			'bool'=>\PDO::PARAM_BOOL,
@@ -441,7 +441,7 @@ class SQL {
 	function quote($val,$type=\PDO::PARAM_STR) {
 		return $this->engine=='odbc'?
 			(is_string($val)?
-				\Base::instance()->stringify(str_replace('\'','\'\'',$val)):
+				Base::instance()->stringify(str_replace('\'','\'\'',$val)):
 				$val):
 			$this->pdo->quote($val,$type);
 	}
@@ -530,7 +530,7 @@ class SQL {
 	*	@param $options array
 	**/
 	function __construct($dsn,$user=NULL,$pw=NULL,array|NULL $options=NULL) {
-		$fw=\Base::instance();
+		$fw=Base::instance();
 		$this->uuid=$fw->hash($this->dsn=$dsn);
 		if (preg_match('/^.+?(?:dbname|database)=(.+?)(?=;|$)/is',$dsn,$parts))
 			$this->dbname=str_replace('\\ ',' ',$parts[1]);

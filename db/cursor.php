@@ -20,10 +20,11 @@
 
 */
 
-namespace DB;
+namespace F3\DB;
+use F3\Magic;
 
 //! Simple cursor implementation
-abstract class Cursor extends \Magic implements \IteratorAggregate {
+abstract class Cursor extends Magic implements \IteratorAggregate {
 
 	//@{ Error messages
 	const

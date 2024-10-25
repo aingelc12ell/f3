@@ -19,7 +19,7 @@
 	with Fat-Free Framework.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+namespace F3;
 //! Generic array utilities
 class Matrix extends Prefab {
 
@@ -46,8 +46,8 @@ class Matrix extends Prefab {
 	 * @return array
 	 */
 	function select($fields, $data) {
-		return array_intersect_key(is_array($data) ? $data : \Base::instance()->get($data),
-			array_flip(is_array($fields) ? $fields : \Base::instance()->split($fields)));
+		return array_intersect_key(is_array($data) ? $data : Base::instance()->get($data),
+			array_flip(is_array($fields) ? $fields : Base::instance()->split($fields)));
 	}
 
 	/**
@@ -128,7 +128,7 @@ class Matrix extends Prefab {
 				$date=strtotime($date);
 			$parts=getdate($date);
 			$days=cal_days_in_month(CAL_GREGORIAN,$parts['mon'],$parts['year']);
-			$ref=date('w',strtotime(date('Y-m',$parts[0]).'-01'))+(7-$first)%7;
+			$ref = (int)date('w',strtotime(date('Y-m',$parts[0]).'-01')) + ((7-$first) % 7);
 			$out=[];
 			for ($i=0;$i<$days;++$i)
 				$out[floor(($ref+$i)/7)][($ref+$i)%7]=$i+1;

@@ -1,7 +1,7 @@
 <?php
 
 
-
+namespace F3;
 //! Lightweight template engine
 class Preview extends View {
 
@@ -70,11 +70,13 @@ class Preview extends View {
      *	@return array|closure|string
      */
     function filter($key = NULL,$func = NULL) {
-        if (!$key)
+        if (!$key) {
             return array_keys($this->filter);
+        }
         $key = strtolower($key);
-        if (!$func)
+        if (!$func) {
             return $this->filter[$key];
+        }
         $this->filter[$key] = $func;
     }
 
@@ -88,18 +90,22 @@ class Preview extends View {
             '/\{~(.+?)~\}|\{\*(.+?)\*\}|\{\-(.+?)\-\}|'.
             '\{\{(.+?)\}\}((\r?\n)*)/s',
             function($expr) {
-                if ($expr[1])
-                    $str = '<?php '.$this->token($expr[1]).' ?>';
-                elseif ($expr[2])
+                if ($expr[1]) {
+                    $str = '<?php ' . $this->token($expr[1]) . ' ?>';
+                }
+                elseif ($expr[2]) {
                     return '';
-                elseif ($expr[3])
+                }
+                elseif ($expr[3]) {
                     $str = $expr[3];
+                }
                 else {
                     $str = '<?= ('.trim($this->token($expr[4])).')'.
                         ($this->interpolation?
                             (!empty($expr[6])?'."'.$expr[6].'"':''):'').' ?>';
-                    if (isset($expr[5]))
-                        $str.=$expr[5];
+                    if (isset($expr[5])) {
+                        $str .= $expr[5];
+                    }
                 }
                 return $str;
             },

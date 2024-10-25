@@ -20,12 +20,13 @@
 
 */
 
-namespace DB\SQL;
+namespace F3\DB\SQL;
+use F3\Base,F3\DB\Cursor,F3\DB\SQL;
 
 //! SQL data mapper
 use ReturnTypeWillChange;
 
-class Mapper extends \DB\Cursor {
+class Mapper extends Cursor {
 
 	//@{ Error messages
 	const
@@ -74,11 +75,14 @@ class Mapper extends \DB\Cursor {
 	*	@param $key string
 	**/
 	function changed($key=NULL) {
-		if (isset($key))
-			return $this->fields[$key]['changed'];
-		foreach($this->fields as $key=>$field)
-			if ($field['changed'])
-				return TRUE;
+		if (isset($key)) {
+            return $this->fields[$key]['changed'];
+        }
+		foreach($this->fields as $key=>$field) {
+            if ($field['changed']) {
+                return TRUE;
+            }
+        }
 		return FALSE;
 	}
 
@@ -99,21 +103,27 @@ class Mapper extends \DB\Cursor {
 	**/
 	function set($key,$val) {
 		if (array_key_exists($key,$this->fields)) {
-			$val=is_null($val) && $this->fields[$key]['nullable']?
-				NULL:$this->db->value($this->fields[$key]['pdo_type'],$val);
-			if ($this->fields[$key]['initial']!==$val ||
-				$this->fields[$key]['default']!==$val && is_null($val))
-				$this->fields[$key]['changed']=TRUE;
+			$val=is_null($val) && $this->fields[$key]['nullable']
+                    ? NULL
+                    : $this->db->value($this->fields[$key]['pdo_type'],$val);
+			if ($this->fields[$key]['initial']!==$val
+                || $this->fields[$key]['default']!==$val && is_null($val)
+            ) {
+                $this->fields[$key]['changed'] = TRUE;
+            }
 			return $this->fields[$key]['value']=$val;
 		}
 		// Adjust result on existing expressions
-		if (isset($this->adhoc[$key]))
-			$this->adhoc[$key]['value']=$val;
-		elseif (is_string($val))
-			// Parenthesize expression in case it's a subquery
-			$this->adhoc[$key]=['expr'=>'('.$val.')','value'=>NULL];
-		else
-			$this->props[$key]=$val;
+		if (isset($this->adhoc[$key])) {
+            $this->adhoc[$key]['value'] = $val;
+        }
+		elseif (is_string($val)) {
+            // Parenthesize expression in case it's a subquery
+            $this->adhoc[$key] = ['expr' => '(' . $val . ')', 'value' => NULL];
+        }
+		else {
+            $this->props[$key] = $val;
+        }
 		return $val;
 	}
 
@@ -123,15 +133,21 @@ class Mapper extends \DB\Cursor {
 	*	@param $key string
 	**/
 	function &get($key) {
-		if ($key=='_id')
-			return $this->_id;
-		elseif (array_key_exists($key,$this->fields))
-			return $this->fields[$key]['value'];
-		elseif (array_key_exists($key,$this->adhoc))
-			return $this->adhoc[$key]['value'];
-		elseif (array_key_exists($key,$this->props))
-			return $this->props[$key];
+		if ($key=='_id') {
+            return $this->_id;
+        }
+		elseif (array_key_exists($key,$this->fields)) {
+            return $this->fields[$key]['value'];
+        }
+		elseif (array_key_exists($key,$this->adhoc)) {
+            return $this->adhoc[$key]['value'];
+        }
+		elseif (array_key_exists($key,$this->props)) {
+            return $this->props[$key];
+        }
 		user_error(sprintf(self::E_Field,$key),E_USER_ERROR);
+        $false = false;
+        return $false;
 	}
 
 	/**
@@ -140,10 +156,12 @@ class Mapper extends \DB\Cursor {
 	*	@param $key string
 	**/
 	function clear($key) {
-		if (array_key_exists($key,$this->adhoc))
-			unset($this->adhoc[$key]);
-		else
-			unset($this->props[$key]);
+		if (array_key_exists($key,$this->adhoc)) {
+            unset($this->adhoc[$key]);
+        }
+		else {
+            unset($this->props[$key]);
+        }
 	}
 
 	/**
@@ -167,20 +185,25 @@ class Mapper extends \DB\Cursor {
 		$mapper=clone($this);
 		$mapper->reset();
 		foreach ($row as $key=>$val) {
-			if (array_key_exists($key,$this->fields))
-				$var='fields';
-			elseif (array_key_exists($key,$this->adhoc))
-				$var='adhoc';
-			else
-				continue;
+			if (array_key_exists($key,$this->fields)) {
+                $var = 'fields';
+            }
+			elseif (array_key_exists($key,$this->adhoc)) {
+                $var = 'adhoc';
+            }
+			else {
+                continue;
+            }
 			$mapper->{$var}[$key]['value']=$val;
 			$mapper->{$var}[$key]['initial']=$val;
-			if ($var=='fields' && $mapper->{$var}[$key]['pkey'])
-				$mapper->{$var}[$key]['previous']=$val;
+			if ($var=='fields' && $mapper->{$var}[$key]['pkey']) {
+                $mapper->{$var}[$key]['previous'] = $val;
+            }
 		}
 		$mapper->query=[clone($mapper)];
-		if (isset($mapper->trigger['load']))
-			\Base::instance()->call($mapper->trigger['load'],$mapper);
+		if (isset($mapper->trigger['load'])) {
+            Base::instance()->call($mapper->trigger['load'], $mapper);
+        }
 		return $mapper;
 	}
 
@@ -190,8 +213,9 @@ class Mapper extends \DB\Cursor {
 	*	@param $obj object
 	**/
 	function cast($obj=NULL) {
-		if (!$obj)
-			$obj=$this;
+		if (!$obj) {
+            $obj = $this;
+        }
 		return array_map(
 			function($row) {
 				return $row['value'];
@@ -208,8 +232,9 @@ class Mapper extends \DB\Cursor {
 	*	@param $options array
 	**/
 	function stringify($fields,$filter=NULL,array|NULL $options=NULL) {
-		if (!$options)
-			$options=[];
+		if (!is_array($options)) {
+            $options = [];
+        }
 		$options+=[
 			'group'=>NULL,
 			'order'=>NULL,
@@ -229,8 +254,9 @@ class Mapper extends \DB\Cursor {
 			$args=is_array($args)?$args:[1=>$args];
 			list($filter)=$filter;
 		}
-		if ($filter)
-			$sql.=' WHERE '.$filter;
+		if ($filter) {
+            $sql .= ' WHERE ' . $filter;
+        }
 		if ($options['group']) {
 			$sql.=' GROUP BY '.implode(',',array_map(
 				function($str) use($db) {
@@ -382,9 +408,10 @@ class Mapper extends \DB\Cursor {
 		// field references that are not present here
 		unset($options['order']);
 		list($sql,$args)=$this->stringify($fields,$filter,$options);
-		if ($subquery_mode)
-			$sql='SELECT COUNT(*) AS '.$this->db->quotekey('_rows').' '.
-				'FROM ('.$sql.') AS '.$this->db->quotekey('_temp');
+		if ($subquery_mode) {
+            $sql = 'SELECT COUNT(*) AS ' . $this->db->quotekey('_rows') . ' ' .
+                'FROM (' . $sql . ') AS ' . $this->db->quotekey('_temp');
+        }
 		$result=$this->db->exec($sql,$args,$ttl);
 		unset($this->adhoc['_rows']);
 		return (int)$result[0]['_rows'];
@@ -402,16 +429,18 @@ class Mapper extends \DB\Cursor {
 			$field['value']=$dry?NULL:$out->fields[$key]['value'];
 			$field['initial']=$field['value'];
 			$field['changed']=FALSE;
-			if ($field['pkey'])
-				$field['previous']=$dry?NULL:$out->fields[$key]['value'];
+			if ($field['pkey']) {
+                $field['previous'] = $dry ? NULL : $out->fields[$key]['value'];
+            }
 			unset($field);
 		}
 		foreach ($this->adhoc as $key=>&$field) {
 			$field['value']=$dry?NULL:$out->adhoc[$key]['value'];
 			unset($field);
 		}
-		if (!$dry && isset($this->trigger['load']))
-			\Base::instance()->call($this->trigger['load'],$this);
+		if (!$dry && isset($this->trigger['load'])) {
+            Base::instance()->call($this->trigger['load'], $this);
+        }
 		return $out;
 	}
 
@@ -431,13 +460,16 @@ class Mapper extends \DB\Cursor {
 		$nkeys=[];
 		$ckeys=[];
 		$inc=NULL;
-		foreach ($this->fields as $key=>$field)
-			if ($field['pkey'])
-				$pkeys[$key]=$field['previous'];
-		if (isset($this->trigger['beforeinsert']) &&
-			\Base::instance()->call($this->trigger['beforeinsert'],
-				[$this,$pkeys])===FALSE)
-			return $this;
+		foreach ($this->fields as $key=>$field) {
+            if ($field['pkey']) {
+                $pkeys[$key] = $field['previous'];
+            }
+        }
+		if (isset($this->trigger['beforeinsert'])
+            && Base::instance()->call($this->trigger['beforeinsert'], [$this,$pkeys])===FALSE
+        ) {
+            return $this;
+        }
 		if ($this->valid())
 			// duplicate record
 			foreach ($this->fields as $key=>&$field) {
@@ -445,8 +477,9 @@ class Mapper extends \DB\Cursor {
 				if ($field['pkey'] && !$inc && ($field['auto_inc'] === TRUE ||
 						($field['auto_inc'] === NULL && !$field['nullable']
 							&& $field['pdo_type']==\PDO::PARAM_INT)
-				))
-					$inc=$key;
+				)) {
+                    $inc = $key;
+                }
 				unset($field);
 			}
 		foreach ($this->fields as $key=>&$field) {
@@ -458,8 +491,9 @@ class Mapper extends \DB\Cursor {
 				if (!$inc && empty($field['value']) &&
 					($field['auto_inc'] === TRUE || ($field['auto_inc'] === NULL
 						&& $field['pdo_type']==\PDO::PARAM_INT && !$field['nullable']))
-				)
-					$inc=$key;
+				) {
+                    $inc = $key;
+                }
 				$filter.=($filter?' AND ':'').$this->db->quotekey($key).'=?';
 				$nkeys[$nctr+1]=[$field['value'],$field['pdo_type']];
 				++$nctr;
@@ -487,26 +521,31 @@ class Mapper extends \DB\Cursor {
 				'INSERT INTO '.$this->table.' ('.$fields.') '.
 				'VALUES ('.$values.')'.$add,$args
 			);
-			if ($this->engine=='pgsql' && $lID && $aik)
-				$this->_id=$lID[0][$aik];
-			elseif ($this->engine!='oci')
-				$this->_id=$this->db->lastinsertid();
+			if ($this->engine=='pgsql' && $lID && $aik) {
+                $this->_id = $lID[0][$aik];
+            }
+			elseif ($this->engine!='oci') {
+                $this->_id = $this->db->lastinsertid();
+            }
 			// Reload to obtain default and auto-increment field values
-			if ($reload=(($inc && $this->_id) || $filter))
-				$this->load($inc?
-					[$inc.'=?',$this->db->value(
-						$this->fields[$inc]['pdo_type'],$this->_id)]:
-					[$filter,$nkeys]);
-			if (isset($this->trigger['afterinsert']))
-				\Base::instance()->call($this->trigger['afterinsert'],
-					[$this,$pkeys]);
+			if ($reload=(($inc && $this->_id) || $filter)) {
+                $this->load($inc ?
+                    [$inc . '=?', $this->db->value(
+                        $this->fields[$inc]['pdo_type'], $this->_id)] :
+                    [$filter, $nkeys]);
+            }
+			if (isset($this->trigger['afterinsert'])) {
+                Base::instance()->call($this->trigger['afterinsert'],
+                    [$this, $pkeys]);
+            }
 			// reset changed flag after calling afterinsert
-			if (!$reload)
-				foreach ($this->fields as $key=>&$field) {
-					$field['changed']=FALSE;
-					$field['initial']=$field['value'];
-					unset($field);
-				}
+			if (!$reload) {
+                foreach ($this->fields as $key => &$field) {
+                    $field['changed'] = FALSE;
+                    $field['initial'] = $field['value'];
+                    unset($field);
+                }
+            }
 		}
 		return $this;
 	}
@@ -520,40 +559,46 @@ class Mapper extends \DB\Cursor {
 		$ctr=0;
 		$pairs='';
 		$pkeys=[];
-		foreach ($this->fields as $key=>$field)
-			if ($field['pkey'])
-				$pkeys[$key]=$field['previous'];
-		if (isset($this->trigger['beforeupdate']) &&
-			\Base::instance()->call($this->trigger['beforeupdate'],
-				[$this,$pkeys])===FALSE)
-			return $this;
-		foreach ($this->fields as $key=>$field)
-			if ($field['changed']) {
-				$pairs.=($pairs?',':'').$this->db->quotekey($key).'=?';
-				$args[++$ctr]=[$field['value'],$field['pdo_type']];
-			}
+		foreach ($this->fields as $key=>$field) {
+            if ($field['pkey']) {
+                $pkeys[$key] = $field['previous'];
+            }
+        }
+		if (isset($this->trigger['beforeupdate'])
+            && Base::instance()->call($this->trigger['beforeupdate'],[$this,$pkeys])===FALSE
+        ) {
+            return $this;
+        }
+		foreach ($this->fields as $key=>$field) {
+            if ($field['changed']) {
+                $pairs .= ($pairs ? ',' : '') . $this->db->quotekey($key) . '=?';
+                $args[++$ctr] = [$field['value'], $field['pdo_type']];
+            }
+        }
 		if ($pairs) {
 			$filter='';
-			foreach ($this->fields as $key=>$field)
-				if ($field['pkey']) {
-					$filter.=($filter?' AND ':' WHERE ').
-						$this->db->quotekey($key).'=?';
-					$args[++$ctr]=[$field['previous'],$field['pdo_type']];
-				}
-			if (!$filter)
-				user_error(sprintf(self::E_PKey,$this->source),E_USER_ERROR);
+			foreach ($this->fields as $key=>$field) {
+                if ($field['pkey']) {
+                    $filter .= ($filter ? ' AND ' : ' WHERE ') .
+                        $this->db->quotekey($key) . '=?';
+                    $args[++$ctr] = [$field['previous'], $field['pdo_type']];
+                }
+            }
+			if (!$filter) {
+                user_error(sprintf(self::E_PKey, $this->source), E_USER_ERROR);
+            }
 			$sql='UPDATE '.$this->table.' SET '.$pairs.$filter;
 			$this->db->exec($sql,$args);
 		}
-		if (isset($this->trigger['afterupdate']))
-			\Base::instance()->call($this->trigger['afterupdate'],
-				[$this,$pkeys]);
+		if (isset($this->trigger['afterupdate'])) {
+            Base::instance()->call($this->trigger['afterupdate'],[$this, $pkeys]);
+        }
 		// reset changed flag after calling afterupdate
 		foreach ($this->fields as $key=>&$field) {
-				$field['changed']=FALSE;
-				$field['initial']=$field['value'];
-				unset($field);
-			}
+            $field['changed']=FALSE;
+            $field['initial']=$field['value'];
+            unset($field);
+        }
 		return $this;
 	}
 
@@ -571,13 +616,15 @@ class Mapper extends \DB\Cursor {
 				$pairs.=($pairs?',':'').$this->db->quotekey($key).'=?';
 				$args[++$ctr]=[$field['value'],$field['pdo_type']];
 			}
-		if ($filter)
-			if (is_array($filter)) {
-				$cond=array_shift($filter);
-				$args=array_merge($args,$filter);
-				$filter=' WHERE '.$cond;
-			} else
-				$filter=' WHERE '.$filter;
+		if ($filter) {
+            if (is_array($filter)) {
+                $cond = array_shift($filter);
+                $args = array_merge($args, $filter);
+                $filter = ' WHERE ' . $cond;
+            } else {
+                $filter = ' WHERE ' . $filter;
+            }
+        }
 		if ($pairs) {
 			$sql='UPDATE '.$this->table.' SET '.$pairs.$filter;
 			$out = $this->db->exec($sql,$args);
@@ -602,8 +649,9 @@ class Mapper extends \DB\Cursor {
 		if (isset($filter)) {
 			if (!$quick) {
 				$out=0;
-				foreach ($this->find($filter) as $mapper)
-					$out+=$mapper->erase();
+				foreach ($this->find($filter) as $mapper) {
+                    $out += $mapper->erase();
+                }
 				return $out;
 			}
 			$args=[];
@@ -614,8 +662,7 @@ class Mapper extends \DB\Cursor {
 				$args=is_array($args)?$args:[1=>$args];
 				list($filter)=$filter;
 			}
-			return $this->db->
-				exec('DELETE FROM '.$this->table.
+			return $this->db->exec('DELETE FROM '.$this->table.
 				($filter?' WHERE '.$filter:'').';',$args);
 		}
 		$args=[];
@@ -631,26 +678,28 @@ class Mapper extends \DB\Cursor {
 			}
 			$field['value']=NULL;
 			$field['changed']=(bool)$field['default'];
-			if ($field['pkey'])
-				$field['previous']=NULL;
+			if ($field['pkey']) {
+                $field['previous'] = NULL;
+            }
 			unset($field);
 		}
-		if (!$filter)
-			user_error(sprintf(self::E_PKey,$this->source),E_USER_ERROR);
+		if (!$filter) {
+            user_error(sprintf(self::E_PKey, $this->source), E_USER_ERROR);
+        }
 		foreach ($this->adhoc as &$field) {
 			$field['value']=NULL;
 			unset($field);
 		}
 		parent::erase();
-		if (isset($this->trigger['beforeerase']) &&
-			\Base::instance()->call($this->trigger['beforeerase'],
-				[$this,$pkeys])===FALSE)
-			return 0;
-		$out=$this->db->
-			exec('DELETE FROM '.$this->table.' WHERE '.$filter.';',$args);
-		if (isset($this->trigger['aftererase']))
-			\Base::instance()->call($this->trigger['aftererase'],
-				[$this,$pkeys]);
+		if (isset($this->trigger['beforeerase'])
+            && Base::instance()->call($this->trigger['beforeerase'], [$this,$pkeys])===FALSE
+        ) {
+            return 0;
+        }
+		$out=$this->db->exec('DELETE FROM '.$this->table.' WHERE '.$filter.';',$args);
+		if (isset($this->trigger['aftererase'])) {
+            Base::instance()->call($this->trigger['aftererase'], [$this, $pkeys]);
+        }
 		return $out;
 	}
 
@@ -663,8 +712,9 @@ class Mapper extends \DB\Cursor {
 			$field['value']=NULL;
 			$field['initial']=NULL;
 			$field['changed']=FALSE;
-			if ($field['pkey'])
-				$field['previous']=NULL;
+			if ($field['pkey']) {
+                $field['previous'] = NULL;
+            }
 			unset($field);
 		}
 		foreach ($this->adhoc as &$field) {
@@ -681,13 +731,17 @@ class Mapper extends \DB\Cursor {
 	*	@param $func callback
 	**/
 	function copyfrom($var,$func=NULL) {
-		if (is_string($var))
-			$var=\Base::instance()->$var;
-		if ($func)
-			$var=call_user_func($func,$var);
-		foreach ($var as $key=>$val)
-			if (in_array($key,array_keys($this->fields)))
-				$this->set($key,$val);
+		if (is_string($var)) {
+            $var = Base::instance()->$var;
+        }
+		if ($func) {
+            $var = call_user_func($func, $var);
+        }
+		foreach ($var as $key=>$val) {
+            if (in_array($key, array_keys($this->fields))) {
+                $this->set($key, $val);
+            }
+        }
 	}
 
 	/**
@@ -696,9 +750,10 @@ class Mapper extends \DB\Cursor {
 	*	@param $key string
 	**/
 	function copyto($key) {
-		$var=&\Base::instance()->ref($key);
-		foreach ($this->fields+$this->adhoc as $key=>$field)
-			$var[$key]=$field['value'];
+		$var=&Base::instance()->ref($key);
+		foreach ($this->fields+$this->adhoc as $key=>$field) {
+            $var[$key] = $field['value'];
+        }
 	}
 
 	/**
@@ -750,16 +805,17 @@ class Mapper extends \DB\Cursor {
 
 	/**
 	*	Instantiate class
-	*	@param $db \DB\SQL
+	*	@param $db SQL
 	*	@param $table string
 	*	@param $fields array|string
 	*	@param $ttl int|array
 	**/
-	function __construct(\DB\SQL $db,$table,$fields=NULL,$ttl=60) {
+	function __construct(SQL $db,$table,$fields=NULL,$ttl=60) {
 		$this->db=$db;
 		$this->engine=$db->driver();
-		if ($this->engine=='oci')
-			$table=strtoupper($table);
+		if ($this->engine=='oci') {
+            $table = strtoupper($table);
+        }
 		$this->source=$table;
 		$this->table=$this->db->quotekey($table);
 		$this->fields=$db->schema($table,$fields,$ttl);

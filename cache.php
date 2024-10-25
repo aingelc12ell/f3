@@ -1,6 +1,6 @@
 <?php
 
-
+namespace F3;
 //! Cache engine
 class Cache extends Prefab {
 

@@ -20,7 +20,8 @@
 
 */
 
-namespace DB\SQL;
+namespace F3\DB\SQL;
+use F3\Base,F3\DB\SQL;
 
 //! SQL-managed session handler
 class Session extends Mapper {
@@ -67,7 +68,7 @@ class Session extends Mapper {
 		if ($this->dry())
 			return '';
 		if ($this->get('ip')!=$this->_ip || $this->get('agent')!=$this->_agent) {
-			$fw=\Base::instance();
+			$fw=Base::instance();
 			if (!isset($this->onsuspect) ||
 				$fw->call($this->onsuspect,[$this,$id])===FALSE) {
 				//NB: `session_destroy` can't be called at that stage (`session_start` not completed)
@@ -145,8 +146,9 @@ class Session extends Mapper {
 	*	@return string|FALSE
 	**/
 	function stamp() {
-		if (!$this->sid)
-			session_start();
+		if (!$this->sid) {
+            session_start();
+        }
 		return $this->dry()?FALSE:$this->get('stamp');
 	}
 
@@ -167,7 +169,7 @@ class Session extends Mapper {
 	*	@param $key string
 	*	@param $type string, column type for data field
 	**/
-	function __construct(\DB\SQL $db,$table='sessions',$force=TRUE,$onsuspect=NULL,$key=NULL,$type='TEXT') {
+	function __construct(SQL $db,$table='sessions',$force=TRUE,$onsuspect=NULL,$key=NULL,$type='TEXT') {
 		if ($force) {
 			$eol="\n";
 			$tab="\t";
@@ -203,12 +205,12 @@ class Session extends Mapper {
 			[$this,'cleanup']
 		);
 		register_shutdown_function('session_commit');
-		$fw=\Base::instance();
+		$fw=Base::instance();
 		$headers=$fw->HEADERS;
 		$this->_csrf=$fw->hash($fw->SEED.
-			extension_loaded('openssl')?
-				implode(unpack('L',openssl_random_pseudo_bytes(4))):
-				random_int(PHP_INT_MIN,PHP_INT_MAX)
+			extension_loaded('openssl')
+                ? implode(unpack('L',openssl_random_pseudo_bytes(4)))
+                : random_int(PHP_INT_MIN,PHP_INT_MAX)
 			);
 		if ($key)
 			$fw->$key=$this->_csrf;

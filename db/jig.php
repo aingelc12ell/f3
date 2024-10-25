@@ -20,7 +20,8 @@
 
 */
 
-namespace DB;
+namespace F3\DB;
+use F3\Base;
 
 //! In-memory/flat-file DB wrapper
 class Jig {
@@ -58,7 +59,7 @@ class Jig {
 		}
 		if ($this->lazy && isset($this->data[$file]))
 			return $this->data[$file];
-		$fw=\Base::instance();
+		$fw=Base::instance();
 		$raw=$fw->read($dst);
 		switch ($this->format) {
 			case self::FORMAT_JSON:
@@ -81,7 +82,7 @@ class Jig {
 	function write($file,array|NULL $data=NULL) {
 		if (!$this->dir || $this->lazy)
 			return count($this->data[$file]=$data);
-		$fw=\Base::instance();
+		$fw=Base::instance();
 		switch ($this->format) {
 			case self::FORMAT_JSON:
 				if(version_compare(PHP_VERSION, '7.2.0') >= 0)
@@ -158,8 +159,8 @@ class Jig {
 	**/
 	function __construct($dir=NULL,$format=self::FORMAT_JSON,$lazy=FALSE) {
 		if ($dir && !is_dir($dir))
-			mkdir($dir,\Base::MODE,TRUE);
-		$this->uuid=\Base::instance()->hash($this->dir=$dir);
+			mkdir($dir,Base::MODE,TRUE);
+		$this->uuid=Base::instance()->hash($this->dir=$dir);
 		$this->format=$format;
 		$this->lazy=$lazy;
 	}

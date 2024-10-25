@@ -19,7 +19,7 @@
 	with Fat-Free Framework.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+use F3\Base;
 //! Legacy mode enabler
 class F3 {
 
@@ -34,8 +34,9 @@ class F3 {
 	*	@param $args array
 	**/
 	static function __callstatic($func,array $args) {
-		if (!self::$fw)
-			self::$fw=Base::instance();
+		if (!self::$fw) {
+            self::$fw = Base::instance();
+        }
 		return call_user_func_array([self::$fw,$func],$args);
 	}
 

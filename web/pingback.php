@@ -20,12 +20,14 @@
 
 */
 
-namespace Web;
+namespace F3\Web;
+use F3\Base
+    ,F3\Web;
 
 //! Pingback 1.0 protocol (client and server) implementation
 use JetBrains\PhpStorm\NoReturn;
 
-class Pingback extends \Prefab {
+class Pingback extends Prefab {
 
 	protected
 		//! Transaction history
@@ -37,7 +39,7 @@ class Pingback extends \Prefab {
 	*	@param $url
 	**/
 	protected function enabled($url) {
-		$web=\Web::instance();
+		$web=Web::instance();
 		$req=$web->request($url);
 		$found=FALSE;
 		if ($req['body']) {
@@ -64,8 +66,8 @@ class Pingback extends \Prefab {
 	*	@param $source string
 	**/
 	function inspect($source) {
-		$fw=\Base::instance();
-		$web=\Web::instance();
+		$fw=Base::instance();
+		$web=Web::instance();
 		$parts=parse_url($source);
 		if (empty($parts['scheme']) || empty($parts['host']) ||
 			$parts['host']==$fw->HOST) {
@@ -110,7 +112,7 @@ class Pingback extends \Prefab {
 	*	@param $path string
 	**/
 	#[NoReturn] function listen($func, $path=NULL) {
-		$fw=\Base::instance();
+		$fw=Base::instance();
 		if (PHP_SAPI!='cli') {
 			header('X-Powered-By: '.$fw->PACKAGE);
 			header('Content-Type: application/xml; '.
@@ -118,7 +120,7 @@ class Pingback extends \Prefab {
 		}
 		if (!$path)
 			$path=$fw->BASE;
-		$web=\Web::instance();
+		$web=Web::instance();
 		$args=xmlrpc_decode_request($fw->BODY,$method,$charset);
 		$options=['encoding'=>$charset];
 		if ($method=='pingback.ping' && isset($args[0],$args[1])) {

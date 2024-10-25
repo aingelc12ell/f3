@@ -20,6 +20,8 @@
 
 */
 
+namespace F3;
+
 //! Authorization/authentication plug-in
 class Auth {
 
@@ -273,7 +275,7 @@ class Auth {
 	*	@param $func callback
 	**/
 	function __construct($storage,array|NULL $args=NULL,$func=NULL) {
-		if (is_object($storage) && is_a($storage,'DB\Cursor')) {
+		if (is_object($storage) && is_a($storage,'\DB\Cursor')) {
 			$this->storage=$storage->dbtype();
 			$this->mapper=$storage;
 			unset($ref);

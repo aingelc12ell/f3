@@ -20,7 +20,8 @@
 
 */
 
-namespace DB;
+namespace F3\DB;
+use F3\Base;
 
 //! MongoDB wrapper
 class Mongo {
@@ -131,7 +132,7 @@ class Mongo {
 	*	@param $options array
 	**/
 	function __construct($dsn,$dbname,array|NULL $options=NULL) {
-		$this->uuid=\Base::instance()->hash($this->dsn=$dsn);
+		$this->uuid=Base::instance()->hash($this->dsn=$dsn);
 		if ($this->legacy=class_exists('\MongoClient')) {
 			$this->db=new \MongoDB(new \MongoClient($dsn,$options?:[]),$dbname);
 			$this->db->setprofilinglevel(2);
