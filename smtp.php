@@ -91,11 +91,8 @@ class SMTP extends Magic {
 	**/
 	function &get($key) {
 		$key=$this->fixheader($key);
-		if (isset($this->headers[$key]))
-			$val=&$this->headers[$key];
-		else
-			$val=NULL;
-		return $val;
+        $val = $this->headers[$key] ?? NULL;
+        return $val;
 	}
 
 	/**
@@ -127,20 +124,12 @@ class SMTP extends Magic {
 		$reply='';
 		if ($mock) {
 			$host=str_replace('ssl://','',$this->host);
-			switch ($cmd) {
-			case NULL:
-				$reply='220 '.$host.' ESMTP ready'."\n";
-				break;
-			case 'DATA':
-				$reply='354 Go ahead'."\n";
-				break;
-			case 'QUIT':
-				$reply='221 '.$host.' closing connection'."\n";
-				break;
-			default:
-				$reply='250 OK'."\n";
-				break;
-			}
+            $reply = match ($cmd) {
+                NULL => '220 ' . $host . ' ESMTP ready' . "\n",
+                'DATA' => '354 Go ahead' . "\n",
+                'QUIT' => '221 ' . $host . ' closing connection' . "\n",
+                default => '250 OK' . "\n",
+            };
 		}
 		else {
 			$socket=&$this->socket;
@@ -223,14 +212,16 @@ class SMTP extends Magic {
 			$reply=$this->dialog('EHLO '.$fw->HOST,$log,$mock);
 		}
 		$message=wordwrap($message,998);
-		if (preg_match('/8BITMIME/',$reply))
+        # if (preg_match('/8BITMIME/',$reply))
+		if (str_contains($reply, '8BITMIME'))
 			$headers['Content-Transfer-Encoding']='8bit';
 		else {
 			$headers['Content-Transfer-Encoding']='quoted-printable';
 			$message=preg_replace('/^\.(.+)/m',
 				'..$1',quoted_printable_encode($message));
 		}
-		if ($this->user && $this->pw && preg_match('/AUTH/',$reply)) {
+        # if ($this->user && $this->pw && preg_match('/AUTH/',$reply)) {
+		if ($this->user && $this->pw && str_contains($reply, 'AUTH')) {
 			// Authenticate
 			$this->dialog('AUTH LOGIN',$log,$mock);
 			$this->dialog(base64_encode($this->user),$log,$mock);
@@ -267,7 +258,7 @@ class SMTP extends Magic {
 			}
 			unset($val);
 		}
-		$from=isset($headers['Sender'])?$headers['Sender']:strstr($headers['From'],'<');
+		$from= $headers['Sender'] ?? strstr($headers['From'], '<');
 		unset($headers['Sender']);
 		// Start message dialog
 		$this->dialog('MAIL FROM: '.$from,$log,$mock);
@@ -286,9 +277,11 @@ class SMTP extends Magic {
 			$hash=uniqid('',TRUE);
 			// Send mail headers
 			$out='Content-Type: multipart/mixed; boundary="'.$hash.'"'.$eol;
-			foreach ($headers as $key=>$val)
-				if ($key!='Bcc')
-					$out.=$key.': '.$val.$eol;
+			foreach ($headers as $key=>$val) {
+                if ($key != 'Bcc') {
+                    $out .= $key . ': ' . $val . $eol;
+                }
+            }
 			$out.=$eol;
 			$out.='This is a multi-part message in MIME format'.$eol;
 			$out.=$eol;
@@ -298,15 +291,18 @@ class SMTP extends Magic {
 			$out.=$eol;
 			$out.=$message.$eol;
 			foreach ($this->attachments as $attachment) {
-				if (is_array($attachment['filename']))
-					list($alias,$file)=$attachment['filename'];
-				else
-					$alias=basename($file=$attachment['filename']);
+				if (is_array($attachment['filename'])) {
+                    list($alias, $file) = $attachment['filename'];
+                }
+				else {
+                    $alias = basename($file = $attachment['filename']);
+                }
 				$out.='--'.$hash.$eol;
 				$out.='Content-Type: application/octet-stream'.$eol;
 				$out.='Content-Transfer-Encoding: base64'.$eol;
-				if ($attachment['cid'])
-					$out.='Content-Id: '.$attachment['cid'].$eol;
+				if ($attachment['cid']) {
+                    $out .= 'Content-Id: ' . $attachment['cid'] . $eol;
+                }
 				$out.='Content-Disposition: attachment; '.
 					'filename="'.$alias.'"'.$eol;
 				$out.=$eol;
@@ -321,9 +317,11 @@ class SMTP extends Magic {
 		else {
 			// Send mail headers
 			$out='';
-			foreach ($headers as $key=>$val)
-				if ($key!='Bcc')
-					$out.=$key.': '.$val.$eol;
+			foreach ($headers as $key=>$val) {
+                if ($key != 'Bcc') {
+                    $out .= $key . ': ' . $val . $eol;
+                }
+            }
 			$out.=$eol;
 			$out.=$message.$eol;
 			$out.='.';
@@ -331,8 +329,9 @@ class SMTP extends Magic {
 			$this->dialog($out,preg_match('/verbose/i',$log),$mock);
 		}
 		$this->dialog('QUIT',$log,$mock);
-		if (!$mock && $socket)
-			fclose($socket);
+		if (!$mock && $socket) {
+            fclose($socket);
+        }
 		return TRUE;
 	}
 

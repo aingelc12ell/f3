@@ -187,7 +187,7 @@ class Session extends Mapper {
 			);
 		if ($key)
 			$fw->$key=$this->_csrf;
-		$this->_agent=isset($headers['User-Agent'])?$headers['User-Agent']:'';
+		$this->_agent= $headers['User-Agent'] ?? '';
 		$this->_ip=$fw->IP;
 	}
 

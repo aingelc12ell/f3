@@ -6,6 +6,9 @@ CHANGELOG
 *   Feat: Added support for PHP 8.1+
 *   Feat: Split classes into their own files
 *   fix: mt_rand() to random_int()
+*   fix: isset replaced with coalescing operator
+*   fix: substr(s,0) with str_stars_with(); substr(s,-n) with str_ends_with()
+*   fix: ?array to array|NULL for parameter $options
 
 3.8.2 (24.07.2023)
 ---

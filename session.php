@@ -120,7 +120,7 @@ class Session extends Magic {
 	*	@param $max int
 	**/
 	function cleanup($max) {
-		$this->_cache->reset('.@',$max);
+		$this->_cache->reset('.@'.$max);
 		return TRUE;
 	}
 
@@ -193,7 +193,7 @@ class Session extends Magic {
 			);
 		if ($key)
 			$fw->$key=$this->_csrf;
-		$this->_agent=isset($headers['User-Agent'])?$headers['User-Agent']:'';
+		$this->_agent= $headers['User-Agent'] ?? '';
 		$this->_ip=$fw->IP;
 	}
 

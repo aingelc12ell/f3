@@ -46,11 +46,10 @@ class OpenID extends \Magic {
 			(isset($url['user'])?
 				($url['user'].
 				(isset($url['pass'])?(':'.$url['pass']):'').'@'):'').
-			strtolower($url['host']).(isset($url['path'])?$url['path']:'/').
+			strtolower($url['host']).($url['path'] ?? '/').
 			(isset($url['query'])?('?'.$url['query']):'');
 		// HTML-based discovery of OpenID provider
-		$req=\Web::instance()->
-			request($this->args['endpoint'],['proxy'=>$proxy]);
+		$req=\Web::instance()->request($this->args['endpoint'],['proxy'=>$proxy]);
 		if (!$req)
 			return FALSE;
 		$type=array_values(preg_grep('/Content-Type:/',$req['headers']));
@@ -92,7 +91,7 @@ class OpenID extends \Magic {
 							PREG_SET_ORDER)) {
 						$node=[];
 						foreach ($attr as $kv)
-							$node[$kv[1]]=isset($kv[2])?$kv[2]:$kv[3];
+							$node[$kv[1]]= $kv[2] ?? $kv[3];
 						if (isset($node['rel']) &&
 							preg_match('/openid2?\.(\w+)/',
 								$node['rel'],$var) &&
@@ -141,7 +140,7 @@ class OpenID extends \Magic {
 	*	@param $attr array
 	*	@param $reqd string|array
 	**/
-	function auth($proxy=NULL,$attr=[],array $reqd=NULL) {
+	function auth($proxy=NULL,$attr=[],array|NULL $reqd=NULL) {
 		$fw=\Base::instance();
 		$root=$fw->SCHEME.'://'.$fw->HOST;
 		if (empty($this->args['trust_root']))
@@ -229,11 +228,8 @@ class OpenID extends \Magic {
 	*	@param $key string
 	**/
 	function &get($key) {
-		if (isset($this->args[$key]))
-			$val=&$this->args[$key];
-		else
-			$val=NULL;
-		return $val;
+        $val = $this->args[$key] ?? NULL;
+        return $val;
 	}
 
 	/**

@@ -116,7 +116,7 @@ class Preview extends View {
      *	@param $persist bool
      *	@param $escape bool
      **/
-    function resolve($node,array $hive = NULL,$ttl=0,$persist = FALSE,$escape = NULL) {
+    function resolve($node,array|NULL $hive = NULL,$ttl=0,$persist = FALSE,$escape = NULL) {
         $hash = null;
         $fw = $this->fw;
         $cache = Cache::instance();
@@ -178,7 +178,7 @@ class Preview extends View {
      *	@param $hive array
      *	@param $ttl int
      **/
-    function render($file,$mime = 'text/html',array $hive = NULL,$ttl=0) {
+    function render($file,$mime = 'text/html',array|NULL $hive = NULL,$ttl=0) {
         $fw = $this->fw;
         $cache = Cache::instance();
         if (!is_dir($tmp = $fw->TEMP))

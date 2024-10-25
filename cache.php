@@ -31,13 +31,11 @@ class Cache extends Prefab {
                 $raw = call_user_func($parts[0].'_fetch',$ndx);
                 break;
             case 'redis':
+            case 'memcached':
                 $raw = $this->ref->get($ndx);
                 break;
             case 'memcache':
                 $raw = memcache_get($this->ref,$ndx);
-                break;
-            case 'memcached':
-                $raw = $this->ref->get($ndx);
                 break;
             case 'wincache':
                 $raw = wincache_ucache_get($ndx);
@@ -76,6 +74,7 @@ class Cache extends Prefab {
             $ttl = $cached[1];
         $data = $fw->serialize([$val,microtime(TRUE),$ttl]);
         $parts = explode('=',$this->dsn,2);
+        /*
         switch ($parts[0]) {
             case 'apc':
             case 'apcu':
@@ -94,7 +93,18 @@ class Cache extends Prefab {
                 return $fw->write($parts[1].
                     str_replace(['/','\\'],'',$ndx),$data);
         }
-        return FALSE;
+         */
+        return match ($parts[0]) {
+            'apc', 'apcu' => call_user_func($parts[0] . '_store', $ndx, $data, $ttl),
+            'redis' => $this->ref->set($ndx, $data, $ttl ? ['ex' => $ttl] : []),
+            'memcache' => memcache_set($this->ref, $ndx, $data, 0, $ttl),
+            'memcached' => $this->ref->set($ndx, $data, $ttl),
+            'wincache' => wincache_ucache_set($ndx, $data, $ttl),
+            'xcache' => xcache_set($ndx, $data, $ttl),
+            'folder' => $fw->write($parts[1] .
+                str_replace(['/', '\\'], '', $ndx), $data),
+            default => FALSE,
+        };
     }
 
     /**
@@ -116,24 +126,16 @@ class Cache extends Prefab {
             return;
         $ndx = $this->prefix.'.'.$key;
         $parts = explode('=',$this->dsn,2);
-        switch ($parts[0]) {
-            case 'apc':
-            case 'apcu':
-                return call_user_func($parts[0].'_delete',$ndx);
-            case 'redis':
-                return $this->ref->del($ndx);
-            case 'memcache':
-                return memcache_delete($this->ref,$ndx);
-            case 'memcached':
-                return $this->ref->delete($ndx);
-            case 'wincache':
-                return wincache_ucache_delete($ndx);
-            case 'xcache':
-                return xcache_unset($ndx);
-            case 'folder':
-                return @unlink($parts[1].$ndx);
-        }
-        return FALSE;
+        return match ($parts[0]) {
+            'apc', 'apcu' => call_user_func($parts[0] . '_delete', $ndx),
+            'redis' => $this->ref->del($ndx),
+            'memcache' => memcache_delete($this->ref, $ndx),
+            'memcached' => $this->ref->delete($ndx),
+            'wincache' => wincache_ucache_delete($ndx),
+            'xcache' => xcache_unset($ndx),
+            'folder' => @unlink($parts[1] . $ndx),
+            default => FALSE,
+        };
     }
 
     /**

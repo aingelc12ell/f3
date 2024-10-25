@@ -48,7 +48,7 @@ class Web extends Prefab {
 					$mime=trim(exec('file -bI '.escapeshellarg($file)));
 				elseif (!preg_match('/^win/i',PHP_OS))
 					$mime=trim(exec('file -bi '.escapeshellarg($file)));
-				if (isset($mime) && !empty($mime)){
+				if (!empty($mime)){
 					// cut charset information if any
 					$exp=explode(';',$mime,2);
 					$mime=$exp[0];
@@ -110,8 +110,9 @@ class Web extends Prefab {
 							return $val;
 				}
 			}
-			if (isset($mime) && !empty($mime))
-				return $mime;
+			if (!empty($mime)) {
+                return $mime;
+            }
 			// Fallback to file extension-based check if no mime was found yet
 		}
 		if (preg_match('/\w+$/',$file,$ext)) {
@@ -173,7 +174,7 @@ class Web extends Prefab {
 		foreach (explode(',',str_replace(' ','',@$_SERVER['HTTP_ACCEPT']))
 			as $mime)
 			if (preg_match('/(.+?)(?:;q=([\d\.]+)|$)/',$mime,$parts))
-				$accept[$parts[1]]=isset($parts[2])?$parts[2]:1;
+				$accept[$parts[1]]= $parts[2] ?? 1;
 		if (!$accept)
 			$accept['*/*']=1;
 		else {
@@ -281,7 +282,7 @@ class Web extends Prefab {
 						(is_callable($slug)?
 							$slug($base):
 							($this->slug($parts[1]).
-								(isset($parts[2])?$parts[2]:''))):
+								($parts[2] ?? ''))):
 						$base),
 				'tmp_name'=>$tmp,
 				'type'=>$this->mime($base),
@@ -314,7 +315,7 @@ class Web extends Prefab {
 						(is_callable($slug)?
 							$slug($base,$name):
 							($this->slug($parts[1]).
-								(isset($parts[2])?$parts[2]:''))):
+								($parts[2] ?? ''))):
 						$base);
 				$out[$file['name']]=!$file['error'] &&
 					(!file_exists($file['name']) || $overwrite) &&
@@ -359,11 +360,8 @@ class Web extends Prefab {
 			curl_setopt($curl,CURLOPT_POSTFIELDS,$options['content']);
 		if (isset($options['proxy']))
 			curl_setopt($curl,CURLOPT_PROXY,$options['proxy']);
-		curl_setopt($curl,CURLOPT_ENCODING,isset($options['encoding'])
-			? $options['encoding'] : 'gzip,deflate');
-		$timeout=isset($options['timeout'])?
-			$options['timeout']:
-			ini_get('default_socket_timeout');
+		curl_setopt($curl,CURLOPT_ENCODING, $options['encoding'] ?? 'gzip,deflate');
+		$timeout= $options['timeout'] ?? ini_get('default_socket_timeout');
 		curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,$timeout);
 		curl_setopt($curl,CURLOPT_TIMEOUT,$timeout);
 		$headers=[];
@@ -421,8 +419,7 @@ class Web extends Prefab {
 		$options['header']=implode($eol,$options['header']);
 		$body=@file_get_contents($url,FALSE,
 			stream_context_create(['http'=>$options]));
-		$headers=isset($http_response_header)?
-			$http_response_header:[];
+		$headers= $http_response_header ?? [];
 		$err='';
 		if (is_string($body)) {
 			$match=NULL;
@@ -488,8 +485,7 @@ class Web extends Prefab {
 		}
 		if ($socket) {
 			stream_set_blocking($socket,TRUE);
-			stream_set_timeout($socket,isset($options['timeout'])?
-				$options['timeout']:ini_get('default_socket_timeout'));
+			stream_set_timeout($socket, $options['timeout'] ?? ini_get('default_socket_timeout'));
 			if ($proxy=='socks4') {
 				// SOCKS4; http://en.wikipedia.org/wiki/SOCKS#Protocol
 				$packet="\x04\x01".pack("n", $parts['port']).
@@ -515,7 +511,7 @@ class Web extends Prefab {
 				$content.=$str;
 			fclose($socket);
 			$html=explode($eol.$eol,$content,2);
-			$body=isset($html[1])?$html[1]:'';
+			$body= $html[1] ?? '';
 			$headers=array_merge($headers,$current=explode($eol,$html[0]));
 			$match=NULL;
 			foreach ($current as $header)
@@ -593,7 +589,7 @@ class Web extends Prefab {
 	*	@param $url string
 	*	@param $options array
 	**/
-	function request($url,array $options=NULL) {
+	function request($url,array|NULL $options=NULL) {
 		$fw=Base::instance();
 		$parts=parse_url($url);
 		if (empty($parts['scheme'])) {
@@ -619,11 +615,8 @@ class Web extends Prefab {
 		}
 		$this->subst($options['header'],
 			[
-				'Accept-Encoding: '.(isset($options['encoding'])?
-					$options['encoding']:'gzip,deflate'),
-				'User-Agent: '.(isset($options['user_agent'])?
-					$options['user_agent']:
-					'Mozilla/5.0 (compatible; '.php_uname('s').')'),
+				'Accept-Encoding: '.($options['encoding'] ?? 'gzip,deflate'),
+				'User-Agent: '.($options['user_agent'] ?? 'Mozilla/5.0 (compatible; ' . php_uname('s') . ')'),
 				'Connection: close'
 			]
 		);
@@ -651,6 +644,7 @@ class Web extends Prefab {
 		if ($fw->CACHE &&
 			preg_match('/GET|HEAD/',$options['method'])) {
 			$cache=Cache::instance();
+
 			if ($cache->exists(
 				$hash=$fw->hash($options['method'].' '.$url).'.url',$data)) {
 				if (preg_match('/Last-Modified: (.+?)'.preg_quote($eol).'/',

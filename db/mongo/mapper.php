@@ -23,6 +23,8 @@
 namespace DB\Mongo;
 
 //! MongoDB mapper
+use ReturnTypeWillChange;
+
 class Mapper extends \DB\Cursor {
 
 	protected
@@ -121,7 +123,7 @@ class Mapper extends \DB\Cursor {
 	*	@param $options array
 	*	@param $ttl int|array
 	**/
-	function select($fields=NULL,$filter=NULL,array $options=NULL,$ttl=0) {
+	function select($fields=NULL,$filter=NULL,array|NULL $options=NULL,$ttl=0) {
 		if (!$options)
 			$options=[];
 		$options+=[
@@ -199,7 +201,7 @@ class Mapper extends \DB\Cursor {
 	*	@param $options array
 	*	@param $ttl int|array
 	**/
-	function find($filter=NULL,array $options=NULL,$ttl=0) {
+	function find($filter=NULL,array|NULL $options=NULL,$ttl=0) {
 		if (!$options)
 			$options=[];
 		$options+=[
@@ -218,7 +220,7 @@ class Mapper extends \DB\Cursor {
 	*	@param $options array
 	*	@param $ttl int|array
 	**/
-	function count($filter=NULL,array $options=NULL,$ttl=0) {
+	function count($filter=NULL,array|NULL $options=NULL,$ttl=0) {
 		$fw=\Base::instance();
 		$cache=\Cache::instance();
 		$tag='';
@@ -383,7 +385,7 @@ class Mapper extends \DB\Cursor {
 	*	Retrieve external iterator for fields
 	*	@return object
 	**/
-	function getiterator() {
+	#[ReturnTypeWillChange] function getiterator() {
 		return new \ArrayIterator($this->cast());
 	}
 

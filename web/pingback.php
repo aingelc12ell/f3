@@ -23,6 +23,8 @@
 namespace Web;
 
 //! Pingback 1.0 protocol (client and server) implementation
+use JetBrains\PhpStorm\NoReturn;
+
 class Pingback extends \Prefab {
 
 	protected
@@ -107,7 +109,7 @@ class Pingback extends \Prefab {
 	*	@param $func callback
 	*	@param $path string
 	**/
-	function listen($func,$path=NULL) {
+	#[NoReturn] function listen($func, $path=NULL) {
 		$fw=\Base::instance();
 		if (PHP_SAPI!='cli') {
 			header('X-Powered-By: '.$fw->PACKAGE);

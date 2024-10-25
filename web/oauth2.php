@@ -139,11 +139,14 @@ class OAuth2 extends \Magic {
 	*	@param $key string
 	**/
 	function &get($key) {
-		if (isset($this->args[$key]))
-			$val=&$this->args[$key];
+        /*
+        if (isset($this->args[$key]))
+			$val = &$this->args[$key];
 		else
-			$val=NULL;
-		return $val;
+			$val = NULL;
+         */
+        $val = $this->args[$key] ?? NULL;
+        return $val;
 	}
 
 	/**

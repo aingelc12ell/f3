@@ -61,12 +61,15 @@ class Basket extends Magic {
 	*	@param $key string
 	**/
 	function &get($key) {
-		if ($key=='_id')
-			return $this->id;
-		if (array_key_exists($key,$this->item))
-			return $this->item[$key];
+		if ($key=='_id') {
+            return $this->id;
+        }
+		if (array_key_exists($key,$this->item)) {
+            return $this->item[$key];
+        }
+        $false = FALSE;
 		user_error(sprintf(self::E_Field,$key),E_USER_ERROR);
-		return FALSE;
+		return $false;
 	}
 
 	/**
@@ -205,9 +208,10 @@ class Basket extends Magic {
 	*	@param $key string
 	**/
 	function copyto($key) {
-		$var=&\Base::instance()->ref($key);
-		foreach ($this->item as $key=>$field)
-			$var[$key]=$field;
+		$var = &\Base::instance()->ref($key);
+		foreach ($this->item as $key=>$field) {
+            $var[$key] = $field;
+        }
 	}
 
 	/**

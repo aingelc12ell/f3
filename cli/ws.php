@@ -23,6 +23,8 @@
 namespace CLI;
 
 //! RFC6455 WebSocket server
+use JetBrains\PhpStorm\NoReturn;
+
 class WS {
 
 	const
@@ -62,8 +64,10 @@ class WS {
 	*	@param $socket resource
 	**/
 	function alloc($socket) {
-		if (is_bool($buf=$this->read($socket)))
-			return;
+        $buf = $this->read($socket);
+		if (is_bool($buf)) {
+            return;
+        }
 		// Get WebSocket headers
 		$hdrs=[];
 		$EOL="\r\n";
@@ -186,7 +190,8 @@ class WS {
 			 * @return bool
 			 */
 			function($val) use($uri) {
-				return $uri?($val->uri()==$uri):TRUE;
+                # return $uri?($val->uri()==$uri):TRUE;
+				return !$uri || $val->uri() == $uri;
 			}
 		);
 	}
@@ -213,14 +218,14 @@ class WS {
 	/**
 	*	Terminate server
 	**/
-	function kill() {
+	#[NoReturn] function kill() {
 		die;
 	}
 
 	/**
 	*	Execute the server process
 	**/
-	function run() {
+	#[NoReturn] function run() {
 		// Assign signal handlers
 		declare(ticks=1);
 		pcntl_signal(SIGINT,[$this,'kill']);
@@ -412,7 +417,8 @@ class Agent {
 	function fetch() {
 		// Unmask payload
 		$server=$this->server;
-		if (is_bool($buf=$server->read($this->socket)))
+        $buf=$server->read($this->socket);
+		if (is_bool($buf))
 			return FALSE;
 		while($buf) {
 			$op=ord($buf[0]) & WS::OpCode;
@@ -445,6 +451,7 @@ class Agent {
 				break;
 			case WS::Text:
 				$data=trim($data);
+                // no break
 			case WS::Binary:
 				if (isset($this->server->events['receive']) &&
 					is_callable($func=$this->server->events['receive']))

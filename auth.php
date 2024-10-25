@@ -210,7 +210,8 @@ class Auth {
 			$reply=$dialog(base64_encode($pw));
 			$dialog('QUIT');
 			fclose($socket);
-			return (bool)preg_match('/^235 /',$reply);
+            # return (bool)preg_match('/^235 /',$reply);
+			return (bool)str_starts_with($reply, '235 ');
 		}
 		user_error(self::E_SMTP,E_USER_ERROR);
         return false;
@@ -271,7 +272,7 @@ class Auth {
 	*	@param $args array
 	*	@param $func callback
 	**/
-	function __construct($storage,array $args=NULL,$func=NULL) {
+	function __construct($storage,array|NULL $args=NULL,$func=NULL) {
 		if (is_object($storage) && is_a($storage,'DB\Cursor')) {
 			$this->storage=$storage->dbtype();
 			$this->mapper=$storage;

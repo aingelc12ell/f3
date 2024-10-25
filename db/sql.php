@@ -99,21 +99,14 @@ class SQL {
 	*	@param $val scalar
 	**/
 	function type($val) {
-		switch (gettype($val)) {
-			case 'NULL':
-				return \PDO::PARAM_NULL;
-			case 'boolean':
-				return \PDO::PARAM_BOOL;
-			case 'integer':
-				return \PDO::PARAM_INT;
-			case 'resource':
-				return \PDO::PARAM_LOB;
-            case 'double':
-			case 'float':
-				return self::PARAM_FLOAT;
-			default:
-				return \PDO::PARAM_STR;
-		}
+        return match (gettype($val)) {
+            'NULL' => \PDO::PARAM_NULL,
+            'boolean' => \PDO::PARAM_BOOL,
+            'integer' => \PDO::PARAM_INT,
+            'resource' => \PDO::PARAM_LOB,
+            'double', 'float' => self::PARAM_FLOAT,
+            default => \PDO::PARAM_STR,
+        };
 	}
 
 	/**
@@ -536,7 +529,7 @@ class SQL {
 	*	@param $pw string
 	*	@param $options array
 	**/
-	function __construct($dsn,$user=NULL,$pw=NULL,?array $options=NULL) {
+	function __construct($dsn,$user=NULL,$pw=NULL,array|NULL $options=NULL) {
 		$fw=\Base::instance();
 		$this->uuid=$fw->hash($this->dsn=$dsn);
 		if (preg_match('/^.+?(?:dbname|database)=(.+?)(?=;|$)/is',$dsn,$parts))

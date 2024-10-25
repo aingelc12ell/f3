@@ -55,7 +55,7 @@ class View extends Prefab {
      *	@param $hive array
      *	@param $mime string
      **/
-    protected function sandbox(array $hive = NULL,$mime = NULL) {
+    protected function sandbox(array|NULL $hive = NULL,$mime = NULL) {
         $fw = $this->fw;
         $implicit = FALSE;
         if (is_null($hive)) {
@@ -92,7 +92,7 @@ class View extends Prefab {
      *	@param $hive array
      *	@param $ttl int
      **/
-    function render($file,$mime = 'text/html',array $hive = NULL,$ttl=0) {
+    function render($file,$mime = 'text/html',array|NULL $hive = NULL,$ttl=0) {
         $fw = $this->fw;
         $cache = Cache::instance();
         foreach ($fw->split($fw->UI) as $dir) {
