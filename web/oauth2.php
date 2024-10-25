@@ -57,14 +57,13 @@ class OAuth2 extends \Magic {
 			'header'=>['Accept: application/json']
 		];
 		if ($token)
-			array_push($options['header'],'Authorization: Bearer '.$token);
+			$options['header'][] = 'Authorization: Bearer ' . $token;
 		elseif ($method=='POST' && isset($this->args['client_id']))
-			array_push($options['header'],'Authorization: Basic '.
-				base64_encode(
-					$this->args['client_id'].':'.
-					$this->args['client_secret']
-				)
-			);
+			$options['header'][] = 'Authorization: Basic ' .
+                base64_encode(
+                    $this->args['client_id'] . ':' .
+                    $this->args['client_secret']
+                );
 		$response=$web->request($uri,$options);
 		if ($response['error'])
 			user_error($response['error'],E_USER_ERROR);

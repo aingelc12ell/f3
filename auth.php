@@ -64,8 +64,9 @@ class Auth {
 					)
 				]
 			);
-		if ($success && $this->func)
-			$success = call_user_func($this->func,$pw,$this->mapper->get($this->args['pw']));
+		if ($success && $this->func) {
+            $success = call_user_func($this->func, $pw, $this->mapper->get($this->args['pw']));
+        }
 		return $success;
 	}
 
@@ -79,13 +80,19 @@ class Auth {
 	protected function _mongo($id,$pw,$realm) {
 		$success = (bool)
 			$this->mapper->load(
-				[$this->args['id']=>$id]+
-				($this->func?[]:[$this->args['pw']=>$pw])+
-				(isset($this->args['realm'])?
-					[$this->args['realm']=>$realm]:[])
+				[$this->args['id']=>$id]
+				+ ($this->func
+                    ? []
+                    : [$this->args['pw']=>$pw]
+                )
+				+ (isset($this->args['realm'])
+                    ? [$this->args['realm']=>$realm]
+                    : []
+                )
 			);
-		if ($success && $this->func)
-			$success = call_user_func($this->func,$pw,$this->mapper->get($this->args['pw']));
+		if ($success && $this->func) {
+            $success = call_user_func($this->func, $pw, $this->mapper->get($this->args['pw']));
+        }
 		return $success;
 	}
 
@@ -103,19 +110,24 @@ class Auth {
 				[
 					array_merge(
 						[
-							$this->args['id'].'=?'.
-							($this->func?'':' AND '.$this->args['pw'].'=?').
-							(isset($this->args['realm'])?
-								(' AND '.$this->args['realm'].'=?'):''),
+							$this->args['id'].'=?'
+							.($this->func
+                                ? ''
+                                : ' AND '.$this->args['pw'].'=?')
+							. (isset($this->args['realm'])
+                                ? (' AND '.$this->args['realm'].'=?')
+                                : ''
+                            ),
 							$id
 						],
-						($this->func?[]:[$pw]),
-						(isset($this->args['realm'])?[$realm]:[])
+						($this->func ? [] : [$pw]),
+						(isset($this->args['realm']) ? [$realm] : [])
 					)
 				]
 			);
-		if ($success && $this->func)
-			$success = call_user_func($this->func,$pw,$this->mapper->get($this->args['pw']));
+		if ($success && $this->func) {
+            $success = call_user_func($this->func, $pw, $this->mapper->get($this->args['pw']));
+        }
 		return $success;
 	}
 
@@ -130,25 +142,27 @@ class Auth {
 		$filter=$this->args['filter']=$this->args['filter']?:"uid=".$id;
 		$this->args['attr']=$this->args['attr']?:["uid"];
 		array_walk($this->args['attr'],
-		function($attr)use(&$filter,$id) {
-			$filter=str_ireplace($attr."=*",$attr."=".$id,$filter);});
+            function($attr)use(&$filter,$id) {
+                $filter=str_ireplace($attr."=*",$attr."=".$id,$filter);
+            });
 		$dc=@ldap_connect($this->args['dc'],$port);
-		if ($dc &&
-			ldap_set_option($dc,LDAP_OPT_PROTOCOL_VERSION,3) &&
-			ldap_set_option($dc,LDAP_OPT_REFERRALS,0) &&
-			ldap_bind($dc,$this->args['rdn'],$this->args['pw']) &&
-			($result=ldap_search($dc,$this->args['base_dn'],
-				$filter,$this->args['attr'])) &&
-			ldap_count_entries($dc,$result) &&
-			($info=ldap_get_entries($dc,$result)) &&
-			$info['count']==1 &&
-			@ldap_bind($dc,$info[0]['dn'],$pw) &&
-			@ldap_close($dc)) {
+		if ($dc
+            && ldap_set_option($dc,LDAP_OPT_PROTOCOL_VERSION,3)
+            && ldap_set_option($dc,LDAP_OPT_REFERRALS,0)
+            && ldap_bind($dc,$this->args['rdn'],$this->args['pw'])
+            && ($result=ldap_search($dc,$this->args['base_dn'], $filter,$this->args['attr']))
+            && ldap_count_entries($dc,$result)
+            && ($info=ldap_get_entries($dc,$result))
+            && $info['count']==1
+            && @ldap_bind($dc,$info[0]['dn'],$pw)
+            && @ldap_close($dc)
+        ) {
 			return in_array($id,(array_map(function($value){return $value[0];},
 				array_intersect_key($info[0],
 					array_flip($this->args['attr'])))),TRUE);
 		}
 		user_error(self::E_LDAP,E_USER_ERROR);
+        return false;
 	}
 
 	/**
@@ -162,24 +176,27 @@ class Auth {
 			(strtolower($this->args['scheme'])=='ssl'?
 				'ssl://':'').$this->args['host'],
 				$this->args['port']);
-		$dialog=function($cmd=NULL) use($socket) {
-			if (!is_null($cmd))
-				fputs($socket,$cmd."\r\n");
+		$dialog=function($cmd=NULL) use($socket
+        ) {
+			if (!is_null($cmd)) {
+                fputs($socket, $cmd . "\r\n");
+            }
 			$reply='';
-			while (!feof($socket) &&
-				($info=stream_get_meta_data($socket)) &&
-				!$info['timed_out'] && $str=fgets($socket,4096)) {
-				$reply.=$str;
-				if (preg_match('/(?:^|\n)\d{3} .+\r\n/s',
-					$reply))
-					break;
+			while (!feof($socket)
+                && ($info=stream_get_meta_data($socket))
+                && !$info['timed_out'] && $str=fgets($socket,4096)
+            ) {
+				$reply .= $str;
+				if (preg_match('/(?:^|\n)\d{3} .+\r\n/s',$reply)) {
+                    break;
+                }
 			}
 			return $reply;
 		};
 		if ($socket) {
 			stream_set_blocking($socket,TRUE);
 			$dialog();
-			$fw=Base::instance();
+			$fw = Base::instance();
 			$dialog('EHLO '.$fw->HOST);
 			if (strtolower($this->args['scheme'])=='tls') {
 				$dialog('STARTTLS');
@@ -196,6 +213,7 @@ class Auth {
 			return (bool)preg_match('/^235 /',$reply);
 		}
 		user_error(self::E_SMTP,E_USER_ERROR);
+        return false;
 	}
 
 	/**
@@ -215,27 +233,33 @@ class Auth {
 	*	@param $func callback
 	**/
 	function basic($func=NULL) {
-		$fw=Base::instance();
+		$fw = Base::instance();
 		$realm=$fw->REALM;
 		$hdr=NULL;
-		if (isset($_SERVER['HTTP_AUTHORIZATION']))
-			$hdr=$_SERVER['HTTP_AUTHORIZATION'];
-		elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION']))
-			$hdr=$_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
-		if (!empty($hdr))
-			list($_SERVER['PHP_AUTH_USER'],$_SERVER['PHP_AUTH_PW'])=
-				explode(':',base64_decode(substr($hdr,6)));
-		if (isset($_SERVER['PHP_AUTH_USER'],$_SERVER['PHP_AUTH_PW']) &&
-			$this->login(
+		if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+            $hdr = $_SERVER['HTTP_AUTHORIZATION'];
+        }
+		elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+            $hdr = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        }
+		if (!empty($hdr)) {
+            list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) =
+                explode(':', base64_decode(substr($hdr, 6)));
+        }
+		if (isset($_SERVER['PHP_AUTH_USER'],$_SERVER['PHP_AUTH_PW'])
+            && $this->login(
 				$_SERVER['PHP_AUTH_USER'],
 				$func?
 					$fw->call($func,$_SERVER['PHP_AUTH_PW']):
 					$_SERVER['PHP_AUTH_PW'],
 				$realm
-			))
-			return TRUE;
-		if (PHP_SAPI!='cli')
-			header('WWW-Authenticate: Basic realm="'.$realm.'"');
+			)
+        ) {
+            return TRUE;
+        }
+		if (PHP_SAPI!='cli') {
+            header('WWW-Authenticate: Basic realm="' . $realm . '"');
+        }
 		$fw->status(401);
 		return FALSE;
 	}
@@ -247,14 +271,15 @@ class Auth {
 	*	@param $args array
 	*	@param $func callback
 	**/
-	function __construct($storage,?array $args=NULL,$func=NULL) {
+	function __construct($storage,array $args=NULL,$func=NULL) {
 		if (is_object($storage) && is_a($storage,'DB\Cursor')) {
 			$this->storage=$storage->dbtype();
 			$this->mapper=$storage;
 			unset($ref);
 		}
-		else
-			$this->storage=$storage;
+		else {
+            $this->storage = $storage;
+        }
 		$this->args=$args;
 		$this->func=$func;
 	}

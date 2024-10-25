@@ -189,7 +189,7 @@ class Session extends Magic {
 		$this->_csrf=$fw->hash($fw->SEED.
 			extension_loaded('openssl')?
 				implode(unpack('L',openssl_random_pseudo_bytes(4))):
-				mt_rand()
+				random_int(PHP_INT_MIN,PHP_INT_MAX)
 			);
 		if ($key)
 			$fw->$key=$this->_csrf;

@@ -108,6 +108,7 @@ class SQL {
 				return \PDO::PARAM_INT;
 			case 'resource':
 				return \PDO::PARAM_LOB;
+            case 'double':
 			case 'float':
 				return self::PARAM_FLOAT;
 			default:
@@ -407,7 +408,7 @@ class SQL {
 		foreach ($cmd as $key=>$val)
 			if (preg_match('/'.$key.'/',$this->engine)) {
 				$rows=[];
-				foreach ($this->exec($val[0],NULL) as $row)
+				foreach ($this->exec($val[0]) as $row)
 					if (!$fields || in_array($row[$val[1]],$fields)) {
 						foreach ($conv as $regex=>$type)
 							if (preg_match('/'.$regex.'/i',$row[$val[2]]))

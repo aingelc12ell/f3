@@ -57,7 +57,7 @@ class Bcrypt extends Prefab {
 				$iv=openssl_random_pseudo_bytes($raw);
 			if (!$iv)
 				for ($i=0;$i<$raw;++$i)
-					$iv.=chr(mt_rand(0,255));
+					$iv.=chr(random_int(0,255));
 			$salt=str_replace('+','.',base64_encode($iv));
 		}
 		$salt=substr($salt,0,$len);

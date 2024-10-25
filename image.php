@@ -430,7 +430,7 @@ class Image {
 					imagettftext($char,$size*2,0,
 						round(($block-$w)/2),round($block-($block-$h)/2),
 						$fg,$path,$seed[$i]);
-					$char=imagerotate($char,mt_rand(-30,30),
+					$char=imagerotate($char,random_int(-30,30),
 						imagecolorallocatealpha($char,0,0,0,127));
 					// Reduce to normal size
 					$tmp[$i]=imagecreatetruecolor(

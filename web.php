@@ -578,9 +578,10 @@ class Web extends Prefab {
 		if (is_string($new))
 			$new=[$new];
 		foreach ($new as $hdr) {
-			$old=preg_grep('/'.preg_quote(strstr($hdr,':',TRUE),'/').':.+/',
+			$old = preg_grep('/'.preg_quote(strstr($hdr,':',TRUE),'/').':.+/',
 				$old,PREG_GREP_INVERT);
-			array_push($old,$hdr);
+
+			$old[] = $hdr;
 		}
 	}
 
@@ -592,7 +593,7 @@ class Web extends Prefab {
 	*	@param $url string
 	*	@param $options array
 	**/
-	function request($url,?array $options=NULL) {
+	function request($url,array $options=NULL) {
 		$fw=Base::instance();
 		$parts=parse_url($url);
 		if (empty($parts['scheme'])) {
@@ -671,7 +672,7 @@ class Web extends Prefab {
 		}
 		$req=[$options['method'].' '.$url];
 		foreach ($options['header'] as $header)
-			array_push($req,$header);
+			$req[] = $header;
 		return array_merge(['request'=>$req],$result);
 	}
 
@@ -988,7 +989,7 @@ class Web extends Prefab {
 			'vitae voluptas');
 		for ($i=0,$add=$count-(int)$std;$i<$add;++$i) {
 			shuffle($rnd);
-			$words=array_slice($rnd,0,mt_rand(3,$max));
+			$words=array_slice($rnd,0,random_int(3,$max));
 			$out.=(!$std&&$i==0?'':' ').ucfirst(implode(' ',$words)).'.';
 		}
 		return $out;

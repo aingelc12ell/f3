@@ -1,5 +1,12 @@
 CHANGELOG
 
+3.9.0 (24.10.2024)
+---
+*   Feat: Rough and initial adoption for PSR-12
+*   Feat: Added support for PHP 8.1+
+*   Feat: Split classes into their own files
+*   fix: mt_rand() to random_int()
+
 3.8.2 (24.07.2023)
 ---
 *	feat, Base->format: optimize international date formatting for php8.1+
