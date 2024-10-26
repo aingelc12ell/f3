@@ -24,10 +24,8 @@
 
 namespace F3;
 
-require_once(__DIR__.'/prefab.php');
-require_once(__DIR__.'/registry.php');
 //! Base structure
-final class Base extends \Prefab implements \ArrayAccess {
+final class Base extends Prefab implements \ArrayAccess {
 
 	//@{ Framework details
 	const
@@ -2826,6 +2824,74 @@ final class Base extends \Prefab implements \ArrayAccess {
 	}
 
 }
+final class Registry {
+
+    private static
+        //! Object catalog
+        $table;
+
+    /**
+     *	Return TRUE if object exists in catalog
+     *	@return bool
+     *	@param $key string
+     **/
+    static function exists($key) {
+        return isset(self::$table[$key]);
+    }
+
+    /**
+     *	Add object to catalog
+     *	@return object
+     *	@param $key string
+     *	@param $obj object
+     **/
+    static function set($key,$obj) {
+        return self::$table[$key] = $obj;
+    }
+
+    /**
+     *	Retrieve object from catalog
+     *	@return object
+     *	@param $key string
+     **/
+    static function get($key) {
+        return self::$table[$key];
+    }
+
+    /**
+     *	Delete object from catalog
+     *	@param $key string
+     **/
+    static function clear($key) {
+        self::$table[$key] = NULL;
+        unset(self::$table[$key]);
+    }
+
+    //! Prohibit cloning
+    private function __clone() {
+    }
+
+    //! Prohibit instantiation
+    private function __construct() {
+    }
+
+}
+abstract class Prefab {
+
+    /**
+     *	Return class instance
+     *	@return static
+     **/
+    static function instance() {
+        if (!Registry::exists($class = get_called_class())) {
+            $ref = new \ReflectionClass($class);
+            $args = func_get_args();
+            Registry::set($class, $args ? $ref->newinstanceargs($args) : new $class);
+        }
+        return Registry::get($class);
+    }
+
+}
 
 require_once __DIR__.'/cache.php';
 require_once __DIR__.'/view.php';
@@ -2834,5 +2900,6 @@ require_once __DIR__.'/iso.php';
 
 /*
 * Allow the script to call for it on its own
+ * */
 return Base::instance();
-*/
+

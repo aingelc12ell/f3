@@ -11,24 +11,8 @@ New release branch and package will be available soon.
 
 First make sure to add a proper url rewrite configuration to your server, see https://fatfreeframework.com/3.6/routing-engine#DynamicWebSites
 
-**without composer:**
-
 ```php
-## deprecated: $f3 = require('lib/base.php');
-
-require('lib/base.php');
-$f3 = Base::instance();
-```
-
-**with composer:**
-
-```
-composer require f3/f3
-```
-
-```php
-require("vendor/autoload.php");
-$f3 = \F3\Base::instance();
+$f3 = require('vendor/f3/base.php');
 ```
 
 ---
