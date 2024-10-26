@@ -21,7 +21,7 @@
 */
 namespace F3;
 //! Generic array utilities
-class Matrix extends \Prefab {
+class Matrix extends Prefab {
 
 	/**
 	*	Retrieve values from a specified column of a multi-dimensional

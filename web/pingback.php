@@ -27,7 +27,7 @@ use F3\Base
 //! Pingback 1.0 protocol (client and server) implementation
 use JetBrains\PhpStorm\NoReturn;
 
-class Pingback extends \Prefab {
+class Pingback extends Prefab {
 
 	protected
 		//! Transaction history

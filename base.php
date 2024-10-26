@@ -2071,7 +2071,7 @@ final class Base extends Prefab implements \ArrayAccess {
                 user_error(sprintf(self::E_Class, $parts[1]), E_USER_ERROR);
             }
 			if ($parts[2] == '->') {
-				if (is_subclass_of($parts[1],'\Prefab')) {
+				if (is_subclass_of($parts[1],'Prefab')) {
                     $parts[1] = call_user_func($parts[1] . '::instance');
                 }
 				elseif (isset($this->hive['CONTAINER'])) {
@@ -2085,7 +2085,7 @@ final class Base extends Prefab implements \ArrayAccess {
                         $parts[1] = call_user_func($container, $parts[1], $args);
                     }
 					elseif (is_string($container)
-                        && is_subclass_of($container,'\Prefab')
+                        && is_subclass_of($container,'Prefab')
                     ) {
                         $parts[1] = call_user_func($container . '::instance')->
                         get($parts[1]);

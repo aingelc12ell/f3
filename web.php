@@ -21,7 +21,7 @@
 */
 namespace F3;
 //! Wrapper for various HTTP utilities
-class Web extends \Prefab {
+class Web extends Prefab {
 
 	//@{ Error messages
 	const

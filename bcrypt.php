@@ -24,7 +24,7 @@ namespace F3;
 *	Lightweight password hashing library (PHP 5.5+ only)
 *	@deprecated Use http://php.net/manual/en/ref.password.php instead
 **/
-class Bcrypt extends \Prefab {
+class Bcrypt extends Prefab {
 
 	//@{ Error messages
 	const
