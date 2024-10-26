@@ -63,15 +63,20 @@ class View extends Prefab {
             $hive = $fw->hive();
         }
         if ($this->level<1 || $implicit) {
-            if (!$fw->CLI && $mime && !headers_sent() &&
-                !preg_grep ('/^Content-Type:/',headers_list()))
-                header('Content-Type: '.$mime.'; '.
-                    'charset = '.$fw->ENCODING);
-            if ($fw->ESCAPE && (!$mime ||
-                    preg_match('/^(text\/html|(application|text)\/(.+\+)?xml)$/i',$mime)))
+            if (!$fw->CLI && $mime && !headers_sent()
+                && !preg_grep ('/^Content-Type:/',headers_list())
+            ) {
+                header('Content-Type: ' . $mime . '; ' . 'charset = ' . $fw->ENCODING);
+            }
+            if ($fw->ESCAPE
+                && (!$mime
+                    || preg_match('/^(text\/html|(application|text)\/(.+\+)?xml)$/i',$mime))
+            ) {
                 $hive = $this->esc($hive);
-            if (isset($hive['ALIASES']))
+            }
+            if (isset($hive['ALIASES'])) {
                 $hive['ALIASES'] = $fw->build($hive['ALIASES']);
+            }
         }
         $this->temp = $hive;
         unset($fw,$hive,$implicit,$mime);
@@ -96,19 +101,26 @@ class View extends Prefab {
         $fw = $this->fw;
         $cache = Cache::instance();
         foreach ($fw->split($fw->UI) as $dir) {
-            if ($cache->exists($hash = $fw->hash($dir.$file),$data))
+            if ($cache->exists($hash = $fw->hash($dir.$file),$data)) {
                 return $data;
+            }
             if (is_file($this->file = $fw->fixslashes($dir.$file))) {
-                if (isset($_COOKIE[session_name()]) &&
-                    !headers_sent() && session_status()!=PHP_SESSION_ACTIVE)
+                if (isset($_COOKIE[session_name()])
+                    && !headers_sent()
+                    && session_status()!=PHP_SESSION_ACTIVE
+                ) {
                     session_start();
+                }
                 $fw->sync('SESSION');
                 $data = $this->sandbox($hive,$mime);
-                if (isset($this->trigger['afterrender']))
-                    foreach($this->trigger['afterrender'] as $func)
-                        $data = $fw->call($func,[$data, $dir.$file]);
-                if ($ttl)
-                    $cache->set($hash,$data,$ttl);
+                if (isset($this->trigger['afterrender'])) {
+                    foreach ($this->trigger['afterrender'] as $func) {
+                        $data = $fw->call($func, [$data, $dir . $file]);
+                    }
+                }
+                if ($ttl) {
+                    $cache->set($hash, $data, $ttl);
+                }
                 return $data;
             }
         }
