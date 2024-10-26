@@ -2,7 +2,7 @@
 
 namespace F3;
 //! Cache engine
-class Cache extends Prefab {
+class Cache extends \Prefab {
 
     protected
         //! Cache DSN

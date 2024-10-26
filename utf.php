@@ -21,7 +21,7 @@
 */
 namespace F3;
 //! Unicode string manager
-class UTF extends Prefab {
+class UTF extends \Prefab {
 
 	/**
 	*	Get string length

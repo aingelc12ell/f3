@@ -23,7 +23,7 @@
 namespace F3;
 
 //! Data validator
-class Audit extends Prefab {
+class Audit extends \Prefab {
 
 	//@{ User agents
 	const

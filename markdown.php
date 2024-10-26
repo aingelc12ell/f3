@@ -21,7 +21,7 @@
 */
 namespace F3;
 //! Markdown-to-HTML converter
-class Markdown extends Prefab {
+class Markdown extends \Prefab {
 
 	protected
 		//! Parsing rules

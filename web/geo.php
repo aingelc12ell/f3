@@ -22,11 +22,10 @@
 
 namespace F3\Web;
 use F3\Base
-    ,F3\Prefab
     ,F3\Web;
 
 //! Geo plug-in
-class Geo extends Prefab {
+class Geo extends \Prefab {
 
 	/**
 	*	Return information about specified Unix time zone

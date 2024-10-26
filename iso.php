@@ -2,7 +2,7 @@
 
 namespace F3;
 //! ISO language/country codes
-class ISO extends Prefab {
+class ISO extends \Prefab {
 
     //@{ ISO 3166-1 country codes
     const

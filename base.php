@@ -1,5 +1,6 @@
 <?php
 
+
 /*
 
 	Copyright (c) 2009-2023 F3::Factory/Bong Cosca, All rights reserved.
@@ -19,83 +20,14 @@
 	with Fat-Free Framework.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+
+
 namespace F3;
 
-//! Factory class for single-instance objects
-abstract class Prefab {
-
-	/**
-	*	Return class instance
-	*	@return static
-	**/
-	static function instance() {
-		if (!Registry::exists($class = get_called_class())) {
-			$ref = new \ReflectionClass($class);
-			$args = func_get_args();
-			Registry::set($class, $args ? $ref->newinstanceargs($args) : new $class);
-		}
-		return Registry::get($class);
-	}
-
-}
-
-
-//! Container for singular object instances
-final class Registry {
-
-    private static
-        //! Object catalog
-        $table;
-
-    /**
-     *	Return TRUE if object exists in catalog
-     *	@return bool
-     *	@param $key string
-     **/
-    static function exists($key) {
-        return isset(self::$table[$key]);
-    }
-
-    /**
-     *	Add object to catalog
-     *	@return object
-     *	@param $key string
-     *	@param $obj object
-     **/
-    static function set($key,$obj) {
-        return self::$table[$key] = $obj;
-    }
-
-    /**
-     *	Retrieve object from catalog
-     *	@return object
-     *	@param $key string
-     **/
-    static function get($key) {
-        return self::$table[$key];
-    }
-
-    /**
-     *	Delete object from catalog
-     *	@param $key string
-     **/
-    static function clear($key) {
-        self::$table[$key] = NULL;
-        unset(self::$table[$key]);
-    }
-
-    //! Prohibit cloning
-    private function __clone() {
-    }
-
-    //! Prohibit instantiation
-    private function __construct() {
-    }
-
-}
-
+require_once(__DIR__.'/prefab.php');
+require_once(__DIR__.'/registry.php');
 //! Base structure
-final class Base extends Prefab implements \ArrayAccess {
+final class Base extends \Prefab implements \ArrayAccess {
 
 	//@{ Framework details
 	const
@@ -2141,7 +2073,7 @@ final class Base extends Prefab implements \ArrayAccess {
                 user_error(sprintf(self::E_Class, $parts[1]), E_USER_ERROR);
             }
 			if ($parts[2] == '->') {
-				if (is_subclass_of($parts[1],'Prefab')) {
+				if (is_subclass_of($parts[1],'\Prefab')) {
                     $parts[1] = call_user_func($parts[1] . '::instance');
                 }
 				elseif (isset($this->hive['CONTAINER'])) {
@@ -2155,7 +2087,7 @@ final class Base extends Prefab implements \ArrayAccess {
                         $parts[1] = call_user_func($container, $parts[1], $args);
                     }
 					elseif (is_string($container)
-                        && is_subclass_of($container,'Prefab')
+                        && is_subclass_of($container,'\Prefab')
                     ) {
                         $parts[1] = call_user_func($container . '::instance')->
                         get($parts[1]);

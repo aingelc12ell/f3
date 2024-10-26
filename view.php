@@ -2,7 +2,7 @@
 
 namespace F3;
 //! View handler
-class View extends Prefab {
+class View extends \Prefab {
 
     private
         //! Temporary hive
