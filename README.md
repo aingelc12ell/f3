@@ -1,3 +1,5 @@
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/f3/f3.svg?style=flat-square)](https://packagist.org/packages/f3/f3)
+
 # fatfree-core
 Fat-Free Framework core library
 
